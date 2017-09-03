@@ -1,6 +1,8 @@
-**** AsciiBrot
+# AsciiBrot
 
-** Controls
+A Fractal viewer in Rust
+
+## Controls
 
 * hjkl: Move left, down, up, right
 * space: Zoom in
