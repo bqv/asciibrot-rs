@@ -1,7 +1,9 @@
 
+extern crate rayon;
 extern crate num;
 
 use quaternion::Quaternion;
+use self::rayon::prelude::*;
 use std;
 
 pub struct StepRange<T>
@@ -72,17 +74,18 @@ pub struct Renderer<T> {
     fractal: Box<Fn(Quaternion<T>) -> bool>
 }
 
+unsafe impl<T: Send + Sync + 'static> Sync for Renderer<T> {}
+
 impl<T> Renderer<T>
-    where T: num::Float,
+    where T: num::Float + Send + Sync + 'static,
           for<'a> &'a T: std::ops::Add<&'a T, Output = T>,
-          for<'a> &'a T: std::ops::Sub<&'a T, Output = T>,
-          T: std::convert::From<i8>
+          for<'a> &'a T: std::ops::Sub<&'a T, Output = T>
 {
     pub fn new(func: Box<Fn(Quaternion<T>) -> bool>) -> Renderer<T> {
         Renderer { fractal: func }
     }
 
-    fn renderpixel(&self, x: T, y: T) -> char {
+    fn render_pixel(&self, x: T, y: T) -> char {
         let r = (*self.fractal)(Quaternion { x: x, i: y, j: T::zero(), k: T::zero() });
         match r {
             true => '*',
@@ -90,18 +93,22 @@ impl<T> Renderer<T>
         }
     }
 
-    fn renderrow(&self, xs: &mut StepRange<T>, y: T) -> String {
+    fn render_row(&self, xs: &[T], y: T) -> String {
         let mut row = String::new();
-        for x in xs {
-            row.push(self.renderpixel(x, y));
+        let iter = xs.par_iter();
+        for pixel in iter.map(|&x| self.render_pixel(x, y)).collect::<Vec<char>>() {
+            row.push(pixel);
         };
         row
     }
 
     pub fn render(&self, mut xs: StepRange<T>, ys: std::iter::Rev<StepRange<T>>) -> Vec<String> {
         let mut screen = Vec::new();
-        for y in ys {
-            screen.push(self.renderrow(&mut xs, y));
+        let vecx = xs.collect::<Vec<T>>();
+        let vecy = ys.collect::<Vec<T>>();
+        let iter = vecy.par_iter();
+        for row in iter.map(|&y| self.render_row(vecx.as_slice(), y)).collect::<Vec<String>>() {
+            screen.push(row);
         };
         screen
     }

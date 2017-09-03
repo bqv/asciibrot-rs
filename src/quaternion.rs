@@ -1,9 +1,9 @@
 
 extern crate num;
 
-use std::{ops, clone, fmt};
+use std::{ops, clone, fmt, cmp, hash};
 
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct Quaternion<T> {
     pub x: T,
     pub i: T,
@@ -94,6 +94,17 @@ impl<T: num::Num + clone::Clone> ops::Neg for Quaternion<T> {
 impl<T: fmt::Display> fmt::Display for Quaternion<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({},{}i,{}j,{}k)", self.x, self.i, self.j, self.k)
+    }
+}
+
+impl<T: num::Float + clone::Clone> cmp::Eq for Quaternion<T> {}
+
+impl<T: num::Float + clone::Clone> hash::Hash for Quaternion<T> {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.x.integer_decode().hash(state);
+        self.i.integer_decode().hash(state);
+        self.j.integer_decode().hash(state);
+        self.k.integer_decode().hash(state);
     }
 }
 
