@@ -97,7 +97,7 @@ impl<T> Renderer<T>
             Some(n) if n < 0.7 => '6',
             Some(n) if n < 0.8 => '7',
             Some(n) if n < 0.9 => '8',
-            Some(n) if n < 1.0 => '1',
+            Some(n) if n < 1.0 => '9',
             _ => ' '
         }
     }
