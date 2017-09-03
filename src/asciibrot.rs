@@ -63,7 +63,7 @@ fn main() {
     let mut ypos = 1f64;
     let mut width = 4f64;
     let mut height = 2f64;
-    ncurses::printw("AsciiBrot\n");
+    ncurses::printw("AsciiBrot - hjkl: pan, space/backspace: zoom, q: quit\n");
     let r = renderer::Renderer::new(Box::new(mandelbrot));
     draw(&r, xpos, ypos, width, height);
     ncurses::refresh();
