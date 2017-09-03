@@ -71,7 +71,7 @@ impl<T> DoubleEndedIterator for StepRange<T>
 }
 
 pub struct Renderer<T> {
-    fractal: Box<Fn(Quaternion<T>) -> bool>
+    fractal: Box<Fn(Quaternion<T>) -> Option<f32>>
 }
 
 unsafe impl<T: Send + Sync + 'static> Sync for Renderer<T> {}
@@ -81,15 +81,24 @@ impl<T> Renderer<T>
           for<'a> &'a T: std::ops::Add<&'a T, Output = T>,
           for<'a> &'a T: std::ops::Sub<&'a T, Output = T>
 {
-    pub fn new(func: Box<Fn(Quaternion<T>) -> bool>) -> Renderer<T> {
+    pub fn new(func: Box<Fn(Quaternion<T>) -> Option<f32>>) -> Renderer<T> {
         Renderer { fractal: func }
     }
 
     fn render_pixel(&self, x: T, y: T) -> char {
         let r = (*self.fractal)(Quaternion { x: x, i: y, j: T::zero(), k: T::zero() });
         match r {
-            true => '*',
-            false => ' '
+            Some(n) if n < 0.1 => '0',
+            Some(n) if n < 0.2 => '1',
+            Some(n) if n < 0.3 => '2',
+            Some(n) if n < 0.4 => '3',
+            Some(n) if n < 0.5 => '4',
+            Some(n) if n < 0.6 => '5',
+            Some(n) if n < 0.7 => '6',
+            Some(n) if n < 0.8 => '7',
+            Some(n) if n < 0.9 => '8',
+            Some(n) if n < 1.0 => '1',
+            _ => ' '
         }
     }
 
@@ -102,7 +111,7 @@ impl<T> Renderer<T>
         row
     }
 
-    pub fn render(&self, mut xs: StepRange<T>, ys: std::iter::Rev<StepRange<T>>) -> Vec<String> {
+    pub fn render(&self, xs: StepRange<T>, ys: std::iter::Rev<StepRange<T>>) -> Vec<String> {
         let mut screen = Vec::new();
         let vecx = xs.collect::<Vec<T>>();
         let vecy = ys.collect::<Vec<T>>();

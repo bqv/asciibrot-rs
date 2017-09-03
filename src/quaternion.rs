@@ -100,6 +100,7 @@ impl<T: fmt::Display> fmt::Display for Quaternion<T> {
 impl<T: num::Float + clone::Clone> cmp::Eq for Quaternion<T> {}
 
 impl<T: num::Float + clone::Clone> hash::Hash for Quaternion<T> {
+    #[inline]
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
         self.x.integer_decode().hash(state);
         self.i.integer_decode().hash(state);
@@ -109,6 +110,7 @@ impl<T: num::Float + clone::Clone> hash::Hash for Quaternion<T> {
 }
 
 impl<T: num::Float + clone::Clone> Quaternion<T> {
+    #[inline]
     fn norm_sqr(&self) -> T {
         ((self.x.clone()*self.x.clone())
         +(self.i.clone()*self.i.clone())
@@ -116,6 +118,7 @@ impl<T: num::Float + clone::Clone> Quaternion<T> {
         +(self.k.clone()*self.k.clone()))
     }
 
+    #[inline]
     pub fn norm(&self) -> T {
         self.norm_sqr().sqrt()
     }

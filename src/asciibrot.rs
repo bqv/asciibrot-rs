@@ -36,8 +36,8 @@ fn limsup<T>(f: Box<Fn(&Quaternion<T>) -> Quaternion<T>>, maxiter: usize, ceil: 
 }
 
 cached!{ MANDELBROT >>
-fn mandelbrot(z: Quaternion<f64>) -> bool = {
-    limsup(Box::new(move |x| (x.clone()*x.clone())+z.clone()), 1000, 2f64).is_none()
+fn mandelbrot(z: Quaternion<f64>) -> Option<f32> = {
+    limsup(Box::new(move |x| (x.clone()*x.clone())+z.clone()), 1000, 2f64).map(|n| n as f32 / 1000.0)
 }}
 
 fn draw(renderer: &renderer::Renderer<f64>, xpos: f64, ypos: f64, width: f64, height: f64) {
@@ -63,7 +63,7 @@ fn main() {
     let mut ypos = 1f64;
     let mut width = 4f64;
     let mut height = 2f64;
-    ncurses::printw("AsciiBrot");
+    ncurses::printw("AsciiBrot\n");
     let r = renderer::Renderer::new(Box::new(mandelbrot));
     draw(&r, xpos, ypos, width, height);
     ncurses::refresh();
